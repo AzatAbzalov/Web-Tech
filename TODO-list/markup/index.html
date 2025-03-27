@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <title>Список задач Абзалов Азат Маратович</title>
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+
+<header class="page-header">
+    <h1 class="page-header-title">Список задач</h1>
+</header>
+
+<main class="page-main">
+    <section class="task-add-section">
+        <form>
+            <h2>Новая задача</h2>
+            <section class="task-input-field">
+                <input type ="text" class="task-input" placeholder="Название задачи...">
+                <button type="button" class="task-add-button">+ Добавить</button>
+            </section>
+        </form>
+    </section>
+
+    <section class="tasks-board">
+        <section class="task-container backlog">
+            <h3>Бэклог</h3>
+            <ul class="task-list">
+                <li class="task-list-element">Выучить JS</li>
+                <li class="task-list-element">Выучить React</li>
+                <li class="task-list-element">Выучить Домашку</li>
+            </ul>
+        </section>
+
+        <section class="task-container in-progress">
+            <h3>В процессе</h3>
+            <ul class="task-list">
+                <li class="task-list-element">Выпить смузи</li>
+                <li class="task-list-element">Попить воды</li>
+            </ul>
+        </section>
+
+        <section class="task-container completed">
+            <h3>Готово</h3>
+            <ul class="task-list">
+                <li class="task-list-element">Позвонить маме</li>
+                <li class="task-list-element">Погладить кота</li>
+            </ul>
+        </section>
+
+        <section class="task-container trash-can">
+            <h3>Корзина</h3>
+            <ul class="task-list">
+                <li class="task-list-element">Сходить погулять</li>
+                <li class="task-list-element">Прочитать Войну и Мир</li>
+            </ul>
+            <button type="button" class="clear-button">X Очистить</button>
+        </section>
+
+    </section>
+</main>
+</html>

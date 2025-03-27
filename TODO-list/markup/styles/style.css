@@ -1,0 +1,116 @@
+body{
+    font-family: sans-serif;
+    background-color: rgb(214, 228, 228);
+    min-width: max-content;
+    margin:0;
+    padding:0;
+}
+
+.page-header{
+    color:white;
+    background-color: rgb(70, 70, 204);
+    text-align: left;
+    width: 100% - 30px;
+    padding: 1px 30px;
+}
+
+.page-main{
+    padding: 30px;
+}
+
+.task-add-section{
+    background: white;
+    width: 300px;
+    height: 100px;
+    border-radius:10px;
+    margin-top:10px;
+    margin-bottom:30px;
+    padding: 20px;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;  
+}
+
+.task-input-field{
+    display: flex;
+    gap: 10px;
+}
+
+.task-input{
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid gray;
+    border-radius:5px;
+}
+
+.task-add-button{
+    color:white;
+    background-color:rgb(70, 70, 204);
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.tasks-board{
+    display:flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap:nowrap;
+}   
+
+.task-container{
+    width: 250px;
+    flex-shrink:0;
+}
+
+.tasks-board h3{
+    display: inline-block;
+    padding:10px;
+    border-radius:5px;
+    text-align:center;
+    margin:0;
+}
+
+.backlog h3{color:rgb(103, 102, 102) ;background-color:rgb(202, 200, 200) ;}
+.in-progress h3{color:rgb(82, 82, 246) ;background-color:rgb(141, 183, 214) ;}
+.completed h3{color:rgb(53, 190, 48);background-color:rgb(171, 232, 171) ;}
+.trash-can h3{color: rgb(158, 67, 67);background-color:rgb(251, 144, 144) ;}
+
+.task-list{
+    list-style: none;
+    padding: 0;
+}
+
+.task-list li{
+    background:white;
+    padding: 8px 8px 8px 15px;
+    margin: 5px 0;
+    border-radius: 5px;
+    position: relative;
+}
+
+.task-list li::before{
+    content:"";
+    width: 5px;
+    height: 100%;
+    position: absolute;
+    left:0;
+    top:0;
+    border-radius:5px 0 0 5px;
+}
+
+.backlog .task-list li::before{background-color:rgb(202, 200, 200) ;}
+.in-progress .task-list li::before{background-color:rgb(141, 183, 214);}
+.completed .task-list li::before{background-color:rgb(171, 232, 171);}
+.trash-can .task-list li::before{background-color:rgb(251, 144, 144);}
+
+.clear-button{
+    background-color:rgb(195, 2, 2);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    width: 100%;
+    cursor: pointer;
+    margin-top: 5px;
+    padding: 10px;
+}
