@@ -1,17 +1,24 @@
 import { createElement } from "../framework/render.js";
+import { Status, StatusLabel } from "../const.js";
 
-function createTaskListComponentTemplate(){
+function createTaskListComponentTemplate(status){
     return(
-        `<section class="task-container backlog">
-                <h3>Название блока</h3>
+        `<section class="task-container ${status}">
+                <h3>${StatusLabel[status]}</h3>
                 <ul class="task-list"></ul>
+                ${status == Status.BASKET ? '<button type="button" class="clear-button">X Очистить</button>' : '' }
             </section>`
     );
 }
 
 export default class TaskListComponent {
+    constructor(status){
+        this.status = status;
+    }
+
+
     getTemplate(){
-        return createTaskListComponentTemplate();
+        return createTaskListComponentTemplate(this.status);
     }
 
     getElement(){
