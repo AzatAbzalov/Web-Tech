@@ -23,15 +23,11 @@ export default class TaskBoardPresenter{
         this.#renderBoard();
     }
 
-    #renderBoard(){
+    #renderBoard() {
         render(this.#tasksBoardComponent, this.#boardContainer);
 
         Object.values(Status).forEach((status) => {
-            if (status === Status.BASKET){
-                this.#renderBasketTasksList(this.#boardTasks);
-            } else {
-                this.#renderTasksList(status, this.#boardTasks);
-            }
+            this.#renderTasksList(status, this.#boardTasks);
         });
     }
 
@@ -43,13 +39,6 @@ export default class TaskBoardPresenter{
     #renderEmptyTask(container){
         const emptyTaskComponent = new EmptyTaskComponent();
         render(emptyTaskComponent, container);
-    }
-    
-    #renderBasketTasksList(tasks){
-        const taskListComponent = this.#renderTasksList(Status.BASKET, tasks)
-
-        const clearButtonComponent = new ClearButtonComponent();
-        render(clearButtonComponent, taskListComponent.element);
     }
 
     #renderTasksList(status, tasks){
@@ -66,6 +55,10 @@ export default class TaskBoardPresenter{
                 this.#renderTask(task, taskListElement);
             });
         }
-        return taskListComponent;
+
+        if(status === Status.BASKET){
+            const clearButtonComponent = new ClearButtonComponent();
+            render(clearButtonComponent, taskListComponent.element);
+        }
     }  
 }
