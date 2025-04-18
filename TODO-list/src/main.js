@@ -7,9 +7,12 @@ import TasksModel from "./model/task-model.js";
 const bodyContainer = document.querySelector('.board-app');
 const formContainer = document.querySelector('.task-add-section');
 const taskBoardContainer = document.querySelector('.page-main');
+const addTaskFormComponent = new AddTaskFormComponent({
+    onClick: handleNewTaskButtonClick
+});
 
 render(new HeaderComponent(), bodyContainer, RenderPosition.AFTERBEGIN);
-render(new AddTaskFormComponent, formContainer);
+render(addTaskFormComponent, formContainer);
 
 const tasksModel = new TasksModel();
 const tasksBoardPresenter = new TasksBoardPresenter ({
@@ -18,3 +21,8 @@ const tasksBoardPresenter = new TasksBoardPresenter ({
 });
 
 tasksBoardPresenter.init();
+
+
+function handleNewTaskButtonClick(){
+    tasksBoardPresenter.createTask();
+}

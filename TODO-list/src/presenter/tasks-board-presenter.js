@@ -9,17 +9,17 @@ import { Status } from "../const.js";
 export default class TaskBoardPresenter{
     #boardContainer = null;
     #tasksModel = null;
-    #tasksBoardComponent = new TaskBoardComponent()
-    #boardTasks = [];
+    #tasksBoardComponent = new TaskBoardComponent();
+    
 
     constructor({boardContainer, tasksModel}){
         this.#boardContainer = boardContainer;
         this.#tasksModel = tasksModel;
+
+        this.#tasksModel.addObserver(this.#handleModelChange.bind(this));
     }
 
-    init(){
-        this.#boardTasks = [...this.#tasksModel.tasks];
-        
+    init(){        
         this.#renderBoard();
     }
 
@@ -27,7 +27,7 @@ export default class TaskBoardPresenter{
         render(this.#tasksBoardComponent, this.#boardContainer);
 
         Object.values(Status).forEach((status) => {
-            this.#renderTasksList(status, this.#boardTasks);
+            this.#renderTasksList(status, this.tasks);
         });
     }
 
@@ -57,8 +57,40 @@ export default class TaskBoardPresenter{
         }
 
         if(status === Status.BASKET){
-            const clearButtonComponent = new ClearButtonComponent();
+            const notEmpty = tasksByStatus.length > 0;
+            const clearButtonComponent = new ClearButtonComponent({
+                onClick: this.#handleBasketClear.bind(this),
+                disabled: !notEmpty
+            });
             render(clearButtonComponent, taskListComponent.element);
         }
     }  
+    
+    createTask(){
+        const taskTitle = document.querySelector('.task-input').value.trim();
+        if (!taskTitle) {
+            return;
+        }
+
+        this.#tasksModel.addTask(taskTitle);
+
+        document.querySelector('.task-input').value = '';
+    }
+
+    #handleModelChange(){
+        this.#clearBoard();
+        this.#renderBoard();
+    }
+
+    #clearBoard(){
+        this.#tasksBoardComponent.element.innerHTML = '';
+    }
+
+    get tasks(){
+        return this.#tasksModel.tasks;
+    }
+
+    #handleBasketClear(){
+        this.#tasksModel.basketClear();
+    }
 }
