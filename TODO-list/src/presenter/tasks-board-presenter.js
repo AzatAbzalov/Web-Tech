@@ -4,7 +4,7 @@ import TaskListComponent from "../view/task-list-component.js";
 import EmptyTaskComponent from "../view/empty-task-component.js";
 import ClearButtonComponent from "../view/clear-button-component.js";
 import { render } from "../framework/render.js";
-import { Status } from "../const.js";
+import { Status, StatusLabel } from "../const.js";
 
 export default class TaskBoardPresenter{
     #boardContainer = null;
@@ -23,12 +23,10 @@ export default class TaskBoardPresenter{
         this.#renderBoard();
     }
 
+    
     #renderBoard() {
         render(this.#tasksBoardComponent, this.#boardContainer);
-
-        Object.values(Status).forEach((status) => {
-            this.#renderTasksList(status, this.tasks);
-        });
+        this.#renderTasksList();
     }
 
     #renderTask(task, container) {
@@ -41,29 +39,32 @@ export default class TaskBoardPresenter{
         render(emptyTaskComponent, container);
     }
 
-    #renderTasksList(status, tasks){
-        const taskListComponent = new TaskListComponent(status);
-        render(taskListComponent, this.#tasksBoardComponent.element);
+    #renderTasksList(){
+        Object.values(Status).forEach((status)=>{
+            const taskListComponent = new TaskListComponent({status: status, label: StatusLabel[status],
+                onTaskDrop: this.#handleTaskDrop.bind(this)});
+            render(taskListComponent, this.#tasksBoardComponent.element);
 
-        const taskListElement = taskListComponent.element.querySelector('.task-list');
-        const tasksByStatus = tasks.filter(task => task.status === status);
+            const taskListElement = taskListComponent.element.querySelector('.task-list');
+            const tasksByStatus = this.tasks.filter(task => task.status === status);
 
-        if (tasksByStatus.length === 0){
-            this.#renderEmptyTask(taskListElement);
-        } else {
-            tasksByStatus.forEach(task => {
+            if (tasksByStatus.length === 0){
+                this.#renderEmptyTask(taskListElement);
+            } else {
+                tasksByStatus.forEach(task => {
                 this.#renderTask(task, taskListElement);
-            });
-        }
+                });
+            }
 
-        if(status === Status.BASKET){
-            const notEmpty = tasksByStatus.length > 0;
-            const clearButtonComponent = new ClearButtonComponent({
-                onClick: this.#handleBasketClear.bind(this),
-                disabled: !notEmpty
-            });
-            render(clearButtonComponent, taskListComponent.element);
-        }
+            if(status === Status.BASKET){
+                const notEmpty = tasksByStatus.length > 0;
+                const clearButtonComponent = new ClearButtonComponent({
+                    onClick: this.#handleBasketClear.bind(this),
+                    disabled: !notEmpty
+                });
+                render(clearButtonComponent, taskListComponent.element);
+            }
+        });
     }  
     
     createTask(){
@@ -82,15 +83,18 @@ export default class TaskBoardPresenter{
         this.#renderBoard();
     }
 
+    #handleBasketClear(){
+        this.#tasksModel.basketClear();
+    }
+
+    #handleTaskDrop(taskId, newStatus, targetIndex){
+        this.#tasksModel.taskMove(taskId, newStatus, targetIndex);
+    }
     #clearBoard(){
         this.#tasksBoardComponent.element.innerHTML = '';
     }
 
     get tasks(){
         return this.#tasksModel.tasks;
-    }
-
-    #handleBasketClear(){
-        this.#tasksModel.basketClear();
-    }
+    }    
 }
