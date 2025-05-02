@@ -26,5 +26,4 @@ export default class ClearButtonComponent extends AbstractComponent {
             this.#clickHandle();
         }
     }
-
 }

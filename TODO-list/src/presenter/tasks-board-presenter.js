@@ -3,13 +3,17 @@ import TaskComponent from "../view/task-component.js";
 import TaskListComponent from "../view/task-list-component.js";
 import EmptyTaskComponent from "../view/empty-task-component.js";
 import ClearButtonComponent from "../view/clear-button-component.js";
+import LoadingViewComponent from "../view/loading-view-component.js";
 import { render } from "../framework/render.js";
-import { Status, StatusLabel } from "../const.js";
+import { Status, StatusLabel, UserAction } from "../const.js";
 
 export default class TaskBoardPresenter{
     #boardContainer = null;
     #tasksModel = null;
     #tasksBoardComponent = new TaskBoardComponent();
+    #resetButtonComponent = null;
+    #loadingComponent = new LoadingViewComponent();
+    
     
 
     constructor({boardContainer, tasksModel}){
@@ -19,7 +23,11 @@ export default class TaskBoardPresenter{
         this.#tasksModel.addObserver(this.#handleModelChange.bind(this));
     }
 
-    init(){        
+    async init(){    
+        render(this.#loadingComponent, this.#boardContainer);
+        await this.#tasksModel.init();
+        this.#loadingComponent.removeElement();
+        this.#clearBoard();   
         this.#renderBoard();
     }
 
@@ -58,37 +66,53 @@ export default class TaskBoardPresenter{
 
             if(status === Status.BASKET){
                 const notEmpty = tasksByStatus.length > 0;
-                const clearButtonComponent = new ClearButtonComponent({
+                this.#resetButtonComponent = new ClearButtonComponent({
                     onClick: this.#handleBasketClear.bind(this),
                     disabled: !notEmpty
                 });
-                render(clearButtonComponent, taskListComponent.element);
+                render(this.#resetButtonComponent, taskListComponent.element);
             }
         });
     }  
     
-    createTask(){
+    async createTask(){
         const taskTitle = document.querySelector('.task-input').value.trim();
         if (!taskTitle) {
             return;
         }
-
-        this.#tasksModel.addTask(taskTitle);
-
-        document.querySelector('.task-input').value = '';
+        try{
+            await this.#tasksModel.addTask(taskTitle);
+            document.querySelector('.task-input').value = '';
+        } catch (err){
+            console.error('Ошибка при создании задачи:',err);
+        }
     }
 
-    #handleModelChange(){
-        this.#clearBoard();
-        this.#renderBoard();
+    #handleModelChange(event, payload)
+    { switch(event){
+        case UserAction.ADD_TASK:
+        case UserAction.UPDATE_TASK:
+        case UserAction.DELETE_TASK:
+            this.#clearBoard();
+            this.#renderBoard();
+            break;
+    }      
     }
 
-    #handleBasketClear(){
-        this.#tasksModel.basketClear();
+    async #handleBasketClear(){
+        try{
+        await this.#tasksModel.basketClear();
+        } catch (err){
+            console.error('Ошибка при очистке корзины:', err);
+        }
     }
 
-    #handleTaskDrop(taskId, newStatus, targetIndex){
-        this.#tasksModel.taskMove(taskId, newStatus, targetIndex);
+    async #handleTaskDrop(taskId, newStatus, targetIndex){
+        try{
+           await this.#tasksModel.updateTaskStatus(taskId, newStatus);
+        } catch (err){
+            console.error('Ошибка при обновлении статуса задачи:', err);
+        }
     }
     #clearBoard(){
         this.#tasksBoardComponent.element.innerHTML = '';
