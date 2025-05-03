@@ -54,7 +54,11 @@ export default class TaskBoardPresenter{
             render(taskListComponent, this.#tasksBoardComponent.element);
 
             const taskListElement = taskListComponent.element.querySelector('.task-list');
-            const tasksByStatus = this.tasks.filter(task => task.status === status);
+
+            const tasksByStatus = this.tasks
+                .filter(t => t.status === status)
+                .sort((a, b) => a.order - b.order);
+
 
             if (tasksByStatus.length === 0){
                 this.#renderEmptyTask(taskListElement);
@@ -88,7 +92,7 @@ export default class TaskBoardPresenter{
         }
     }
 
-    #handleModelChange(event, payload)
+    #handleModelChange(event)
     { switch(event){
         case UserAction.ADD_TASK:
         case UserAction.UPDATE_TASK:
@@ -109,7 +113,7 @@ export default class TaskBoardPresenter{
 
     async #handleTaskDrop(taskId, newStatus, targetIndex){
         try{
-           await this.#tasksModel.updateTaskStatus(taskId, newStatus);
+           await this.#tasksModel.taskMove(taskId, newStatus, targetIndex);
         } catch (err){
             console.error('Ошибка при обновлении статуса задачи:', err);
         }

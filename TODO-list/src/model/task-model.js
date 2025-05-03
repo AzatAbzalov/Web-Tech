@@ -13,10 +13,6 @@ export default class TasksModel extends Observable {
     constructor({tasksApiService}) {
         super();
         this.#tasksApiService = tasksApiService;
-
-        this.#tasksApiService.tasks.then((tasks) => {
-            console.log(tasks);
-        });
     }
 
     get tasks(){
@@ -60,7 +56,7 @@ export default class TasksModel extends Observable {
         }
     }
 
-    taskMove(taskId, newStatus, targetIndex){
+    async taskMove(taskId, newStatus, targetIndex){
         const taskIndex = this.#boardtasks.findIndex(task => task.id === taskId);
         if (taskIndex === -1) 
             return;
@@ -68,25 +64,34 @@ export default class TasksModel extends Observable {
         const [movedTask] = this.#boardtasks.splice(taskIndex, 1);
         movedTask.status = newStatus;
 
-        let currIndex = 0;
-        for (let i=0; i < this.#boardtasks.length; i++){
-            if(this.#boardtasks[i].status === newStatus){
-                if(currIndex === targetIndex){
-                    this.#boardtasks.splice(i, 0, movedTask);
-                    this._notify();
-                    return;
-                }
-                currIndex++;
-            }
-        }
-        this.#boardtasks.push(movedTask);
-        this._notify();
+        const group = this.#boardtasks.filter(t => t.status === newStatus)
+        .sort((a,b) => a.order - b.order);
+        
+        group.splice(targetIndex, 0, movedTask);
+
+        group.forEach((task, idx) => {
+            task.order = idx;
+        })
+
+        this.#boardtasks = [
+            ...this.#boardtasks.filter(t => t.status !== newStatus),
+            ...group
+        ];
+        
+        await Promise.all(
+            group.map(task => this.#tasksApiService.updateTask(task))
+        );
+
+        this._notify(UserAction.UPDATE_TASK, movedTask);
     }
 
     async init(){
         try {
             const tasks = await this.#tasksApiService.tasks;
-            this.#boardtasks = tasks;
+            this.#boardtasks = tasks.map((task, idx)=>({
+                ...task,
+                order: task.order ?? idx
+            }));
         } catch(err){
             this.#boardtasks = [];
         }
@@ -98,6 +103,7 @@ export default class TasksModel extends Observable {
             title,
             status: 'backlog',
             id: generateID(),
+            order: this.#boardtasks.filter(t => t.status === Status.BACKLOG).length
         };
         try {
             const createdTask = await this.#tasksApiService.addTask(newTask);
